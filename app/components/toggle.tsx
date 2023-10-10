@@ -4,7 +4,7 @@ import { useState } from "react";
 
 export type ToogleProps = {
   id?: any;
-  height?: number;
+
   label: string;
   description: string;
   open?: any;
@@ -15,7 +15,6 @@ const Toggle: React.FC<ToogleProps> = ({
   id,
   open,
   setOpen,
-  height,
   label,
   description,
 }) => {

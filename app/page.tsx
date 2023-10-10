@@ -1,7 +1,7 @@
-import Root from "./pages/root";
+import Home from "./pages/home";
 
-const Home = () => {
-  return <Root />;
+const Page = () => {
+  return <Home />;
 };
 
-export default Home;
+export default Page;

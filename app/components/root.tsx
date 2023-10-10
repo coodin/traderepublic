@@ -5,8 +5,17 @@ import Right from "@/public/svg-react/right";
 import Link from "next/link";
 import Toggle, { ToogleProps } from "../components/toggle";
 import { useEffect, useRef, useState } from "react";
+import Google from "@/public/svg-react/google";
+import Facbook from "@/public/svg-react/facebook";
+import Close from "@/public/svg-react/close";
 
 const Root = () => {
+  const [isWindow, setIsWindow] = useState(false);
+  useEffect(() => {
+    const isWindow = typeof window !== "undefined";
+    setIsWindow(isWindow);
+  }, []);
+
   const [open, setOpen] = useState<number | null>(null);
   const [data, setData] = useState<ToogleProps[]>([
     {
@@ -39,6 +48,7 @@ const Root = () => {
     You can pay in funds for investment services on the cash account. When you buy and sell securities, we settle these transactions directly on your cash account. Trade Republic transfers the conditions of the partner bank to you, subtracting the costs. As of now, you receive 4% p.a. on your uninvested cash, from our partner banks, up to 50.000€.`,
     },
   ]);
+
   const [firstHeight, setFirstHeight] = useState(0);
   const [secondHeight, setSecondHeight] = useState(0);
   const [thirdHeight, setThirdHeight] = useState(0);
@@ -46,6 +56,9 @@ const Root = () => {
   const [fiveHeight, setFiveHeight] = useState(0);
 
   const [isIntersecting, setIsIntersecting] = useState(false);
+  // useEffect(() => {
+  //   console.log(isIntersecting);
+  // }, [isIntersecting]);
 
   const [tab, setTab] = useState(0);
   const firstRef = useRef<any>(null);
@@ -54,6 +67,9 @@ const Root = () => {
   const thirdRef = useRef<any>(null);
   const fourthRef = useRef<any>(null);
   const fiveRef = useRef<any>(null);
+  const loginRef = useRef<HTMLDialogElement>(null);
+  const registerRef = useRef<HTMLDialogElement>(null);
+
   useEffect(() => {
     if (!firstRef.current) return;
     setFirstHeight(firstRef.current.clientHeight);
@@ -74,68 +90,74 @@ const Root = () => {
     if (!fiveRef.current) return;
     setFiveHeight(fiveRef.current.clientHeight);
   }, [fiveRef]);
-
-  useEffect(() => console.log(tab), [tab]);
+  // Tab
+  // useEffect(() => console.log(tab), [tab]);
   const fun = (event: any) => {
     const firstRefHeight = firstHeight - 10;
     const secondRefHeight = secondHeight - 10;
     const thirdRefHeight = thirdHeight - 10;
-    // console.log(`firstRefHeight${firstRefHeight}`);
-    // console.log(secondRefHeight);
-    // console.log(thirdRefHeight);
+    // console.log(`firstRefHeight:${firstRefHeight}`);
+    // console.log(`secondRefHeight:${secondRefHeight}`);
+    // console.log(`thirdRefHeight:${thirdRefHeight}`);
 
-    const scrollTop = window.scrollY;
+    const scrollTop = isWindow ? window.scrollY : 0;
     // console.log(scrollTop);
     // console.log(firstRefHeight + 150);
-    if (window.innerWidth > 991) {
-      if (firstRefHeight > 0 && secondRefHeight > 0 && thirdRefHeight > 0) {
-        if (scrollTop > firstRefHeight + secondRefHeight + thirdRefHeight) {
-          if (isIntersecting == false) {
-            setTab(3);
-            setIsIntersecting(true);
-          }
-        } else if (scrollTop > firstRefHeight + secondRefHeight) {
-          if (isIntersecting == true) {
-            setTab(2);
-            setIsIntersecting(false);
-          }
-        } else if (scrollTop > firstRefHeight) {
-          if (isIntersecting == false) {
-            setTab(1);
-            setIsIntersecting(true);
-          }
-        } else {
-          if (isIntersecting == true) {
-            setTab(0);
-            setIsIntersecting(false);
-          }
+    if (firstRefHeight > 0 && secondRefHeight > 0 && thirdRefHeight > 0) {
+      if (scrollTop > firstRefHeight + secondRefHeight + thirdRefHeight) {
+        if (isIntersecting == false) {
+          setIsIntersecting(true);
+        }
+      } else if (scrollTop > firstRefHeight + secondRefHeight) {
+        if (isIntersecting == true) {
+          setIsIntersecting(false);
+        }
+      } else if (scrollTop > firstRefHeight) {
+        if (isIntersecting == false) {
+          setIsIntersecting(true);
+        }
+      } else {
+        if (isIntersecting == true) {
+          setIsIntersecting(false);
         }
       }
-    } else {
-      console.log(firstRefHeight + 50);
-      console.log(scrollTop);
+    }
+    if (isWindow && window.innerWidth > 991) {
+    } else if (isWindow && window.innerWidth < 991) {
+      // console.log(scrollTop);
+      // console.log(firstRefHeight + 50);
 
-      if (firstRefHeight > 0 && secondRefHeight > 0 && thirdRefHeight > 0) {
-        if (scrollTop > firstRefHeight + secondRefHeight + thirdRefHeight) {
-          setTab(3);
-          if (isIntersecting == false) {
-            setIsIntersecting(true);
-          }
-        } else if (scrollTop > firstRefHeight + 150) {
+      if (
+        isWindow &&
+        firstRefHeight > 0 &&
+        secondRefHeight > 0 &&
+        thirdRefHeight > 0
+      ) {
+        if (
+          scrollTop >
+          firstRefHeight +
+            secondRefHeight +
+            thirdRefHeight -
+            window.innerHeight +
+            30
+        ) {
+          // setTab(3);
           setTab(2);
-          if (isIntersecting == true) {
-            setIsIntersecting(false);
-          }
-        } else if (scrollTop > firstRefHeight) {
+          // if (isIntersecting == false) {
+          //   setIsIntersecting(true);
+          // }
+        } else if (
+          scrollTop >
+          firstRefHeight + secondRefHeight - window.innerHeight + 20
+        ) {
           setTab(1);
-          if (isIntersecting == false) {
-            setIsIntersecting(true);
-          }
+          // if (isIntersecting == true) {
+          //   setIsIntersecting(false);
+          // }
+        } else if (scrollTop > firstRefHeight) {
+          setTab(0);
         } else {
           setTab(0);
-          if (isIntersecting == true) {
-            setIsIntersecting(false);
-          }
         }
       }
     }
@@ -143,90 +165,187 @@ const Root = () => {
   useEffect(() => {
     window.addEventListener("scroll", fun);
     return () => window.removeEventListener("scroll", fun);
-  }, [firstHeight, secondHeight, thirdHeight]);
+  }, [firstHeight, secondHeight, thirdHeight, isIntersecting]);
 
-  // useEffect(() => {
-  //   window.addEventListener("scroll", (event: any) => {
-  //     let scrollTop = event.srcElement.body.scrollTop;
+  const _class: any =
+    isWindow && window.innerWidth < 640
+      ? { position: "relative", display: "block", width: "100%" }
+      : {};
+  const _classActive: any =
+    isWindow && window.innerWidth < 640
+      ? {
+          position: "fixed",
+          width: "100%",
+        }
+      : {};
 
-  //     console.log(scrollTop);
-  //   });
-  // }, []);
-
-  // useEffect(() => {
-  //   const observer = new IntersectionObserver(
-  //     (entries) => {
-  //       entries.forEach((entry) => {
-  //         const ID = entry.target.getAttribute("id");
-  //         if (entries.length == 1) {
-  //           switch (ID) {
-  //             case "section-1":
-  //               setIsIntersecting((prev) => !prev);
-  //               break;
-  //             case "section-2":
-  //               setIsIntersecting((prev) => !prev);
-  //               break;
-  //             case "section-3":
-  //               setIsIntersecting((prev) => !prev);
-  //               break;
-  //             default:
-  //               setIsIntersecting((prev) => !prev);
-  //               break;
-  //           }
-  //         }
-  //       });
-  //     },
-  //     { threshold: 0.75 }
-  //   );
-
-  //   if (secondRef.current) observer.observe(secondRef.current);
-  //   if (thirdRef.current) observer.observe(thirdRef.current);
-  //   if (fourthRef.current) observer.observe(fourthRef.current);
-
-  //   return () => observer.disconnect();
-  // }, []);
-
-  // useEffect(() => {
-  //   console.log(`isIntersecting ${isIntersecting}`);
-  // }, [isIntersecting]);
-  const _class: any = { position: "relative", display: "block", width: "100%" };
-  const _classActive: any = {
-    position: "fixed",
-    display: "block",
-    width: "100%",
-  };
   return (
-    <main
-    // onScroll={(e) => {
-    //   console.log(e.currentTarget.scrollTop);
-    //   const firstRefHeight = firstRef.current!.clientHeight - 10;
-    //   const secondRefHeight = secondRef.current!.clientHeight - 10;
-    //   const thirdRefHeight = thirdRef.current!.clientHeight - 10;
-
-    //   const scrollTop = e.currentTarget.scrollTop;
-    //   if (scrollTop > firstRefHeight + secondRefHeight + thirdRefHeight) {
-    //     if (isIntersecting == false) {
-    //       setTab(3);
-    //       setIsIntersecting(true);
-    //     }
-    //   } else if (scrollTop > firstRefHeight + secondRefHeight) {
-    //     if (isIntersecting == true) {
-    //       setTab(2);
-    //       setIsIntersecting(false);
-    //     }
-    //   } else if (scrollTop > firstRefHeight) {
-    //     if (isIntersecting == false) {
-    //       setTab(1);
-    //       setIsIntersecting(true);
-    //     }
-    //   } else {
-    //     if (isIntersecting == true) {
-    //       setTab(0);
-    //       setIsIntersecting(false);
-    //     }
-    //   }
-    // }}
-    >
+    <main>
+      {/* Login */}
+      <dialog
+        className="fixed shadow-md backdrop:bg-black backdrop:opacity-40 py-9 px-3 max-sm:m-0 max-sm:min-w-full max-sm:fixed max-sm:top-16 sm:px-8 md:px-16 md:py-12   rounded-xl"
+        ref={loginRef}
+      >
+        <button
+          className="absolute right-4 top-4"
+          onClick={() => loginRef.current?.close()}
+        >
+          <Close className="w-8 h-8 hover:opacity-40 duration-300" />
+        </button>
+        <form
+          className="w-full"
+          onSubmit={(e) => {
+            e.preventDefault();
+            console.log("hello");
+          }}
+        >
+          <div className="flex flex-col gap-y-8 justify-center  sm:w-fit sm:min-w-[350px]  mx-auto">
+            <div className="flex flex-col  ">
+              <label
+                className="text-sm font-[620] tracking-tight"
+                htmlFor="email"
+              >
+                Email
+              </label>
+              <input
+                className="mt-1 h-10 px-4 py-6 bg-[#f7f7f7] focus-within:border-black text-base font-medium rounded-xl border outline-none"
+                id="email"
+                type="email"
+              />
+              <span className="text-red-600 mt-2"></span>
+            </div>
+            <div className="flex flex-col ">
+              <label
+                className="text-sm font-[620] tracking-tight"
+                htmlFor="pasword"
+              >
+                Password
+              </label>
+              <input
+                className="mt-1 h-10 px-4 py-6 bg-[#f7f7f7]  focus-within:border-black text-base font-medium rounded-xl border outline-none"
+                id="pasword"
+                type="password"
+              />
+              <span className="text-red-600 mt-2"></span>
+              <span className="text-sm font-[680]  cursor-pointer mt-2 opacity-80 hover:opacity-100 transition-colors duration-300 tracking-wide max-w-fit">
+                did you forget your password?
+              </span>
+            </div>
+            <button
+              type="submit"
+              className="bg-black rounded-3xl text-base font-[680] w-full text-white py-4"
+            >
+              Log in
+            </button>
+            <div className="flex w-full items-center">
+              <div className="flex-1 h-[1px] bg-gray-400 opacity-40"></div>
+              <span className="text-sm px-2 font-normal"> Or Login with</span>
+              <div className="flex-1 h-[1px] bg-gray-400 opacity-40"></div>
+            </div>
+            <div className="flex justify-between gap-1 sm:gap-x-6">
+              {/* Google */}
+              <div className="flex-1 flex justify-center items-center sm:gap-x-3 py-2 px-1 sm:py-4 sm:px-2 cursor-pointer  shadow-xl  rounded-3xl bg-[#f7f7f7]">
+                <Google className="w-6 h-6" />
+                <span className="text-lg tracking-tight ">Google</span>
+              </div>
+              {/* Facebook */}
+              <div className="flex-1 flex justify-center items-center gap-x-3 py-2 px-1 sm:py-4 sm:px-2 cursor-pointer shadow-xl  rounded-3xl bg-[#f7f7f7]">
+                <Facbook className="w-6 h-6" />
+                <span className="text-lg tracking-tight ">Facebook</span>
+              </div>
+            </div>
+          </div>
+        </form>
+      </dialog>
+      {/* Sign Up */}
+      <dialog
+        className="fixed shadow-md backdrop:bg-black backdrop:opacity-40 py-9 px-3 max-sm:m-0 max-sm:min-w-full max-sm:fixed max-sm:top-16 sm:px-8 md:px-16 md:py-12   rounded-xl"
+        ref={registerRef}
+      >
+        <button
+          className="absolute right-4 top-4"
+          onClick={() => registerRef.current?.close()}
+        >
+          <Close className="w-8 h-8 hover:opacity-40 duration-300" />
+        </button>
+        <form
+          className="w-full"
+          onSubmit={(e) => {
+            e.preventDefault();
+            console.log("hello");
+          }}
+        >
+          <div className="flex flex-col gap-y-8 justify-center  sm:w-fit sm:min-w-[350px]  mx-auto">
+            <h2 className=""></h2>
+            <div className="flex flex-col  ">
+              <label
+                className="text-sm font-[620] tracking-tight"
+                htmlFor="email"
+              >
+                Email
+              </label>
+              <input
+                className="mt-1 h-10 px-4 py-6 bg-[#f7f7f7]  focus-within:border-black text-base font-medium rounded-xl border outline-none"
+                id="email"
+                type="email"
+              />
+              <span className="text-red-600 mt-2"></span>
+            </div>
+            <div className="flex flex-col ">
+              <label
+                className="text-sm font-[620] tracking-tight"
+                htmlFor="pasword"
+              >
+                Password
+              </label>
+              <input
+                className="mt-1 h-10 px-4 py-6 bg-[#f7f7f7]  focus-within:border-black text-base font-medium rounded-xl border outline-none"
+                id="pasword"
+                type="password"
+              />
+              <span className="text-red-600 mt-2"></span>
+            </div>
+            <button
+              type="submit"
+              className="bg-black rounded-3xl text-base font-[680] w-full text-white py-4"
+            >
+              Sign Up
+            </button>
+            <div className="flex w-full items-center">
+              <div className="flex-1 h-[1px] bg-gray-400 opacity-40"></div>
+              <span className="text-sm px-2 font-normal">
+                {" "}
+                Or Register with
+              </span>
+              <div className="flex-1 h-[1px] bg-gray-400 opacity-40"></div>
+            </div>
+            <div className="flex justify-between gap-1 sm:gap-x-6">
+              {/* Google */}
+              <div className="flex-1 flex justify-center items-center sm:gap-x-3 py-2 px-1 sm:py-4 sm:px-2 cursor-pointer  shadow-xl  rounded-3xl bg-[#f7f7f7]">
+                <Google className="w-6 h-6" />
+                <span className="text-lg tracking-tight ">Google</span>
+              </div>
+              {/* Facebook */}
+              <div className="flex-1 flex justify-center items-center gap-x-3 py-2 px-1 sm:py-4 sm:px-2 cursor-pointer shadow-xl  rounded-3xl bg-[#f7f7f7]">
+                <Facbook className="w-6 h-6" />
+                <span className="text-lg tracking-tight ">Facebook</span>
+              </div>
+            </div>
+            <span className="text-[#a9a9a9] text-xs font-[680] text-center">
+              Already have an account?
+              <strong
+                onClick={() => {
+                  registerRef.current?.close();
+                  loginRef.current?.showModal();
+                }}
+                className="text-black  cursor-pointer font-[680] ml-1"
+              >
+                Log in
+              </strong>
+            </span>
+          </div>
+        </form>
+      </dialog>
       {/* // Header */}
       <header
         className={`fixed ${
@@ -243,15 +362,24 @@ const Root = () => {
               <Logo />
             </div>
           </Link>
-          <nav className="min-[743px]:flex hidden gap-4 items-center ">
-            <Link
-              href={""}
-              className="text-[#000] bg-transparent text-base p-4 font-[680]"
+          <nav className="flex gap-4 items-center ">
+            <span
+              onClick={() => loginRef.current?.showModal()}
+              className="text-[#000] cursor-pointer bg-transparent text-sm md:text-base p-4 font-[680]"
             >
               Log in
-            </Link>
+            </span>
+            {/* <Link
+              href={""}
+              className=""
+            >
+              Log in
+            </Link> */}
             <button
-              className="bg-black flex items-center text-base font-[680] gap-[2.8125rem] p-4 whitespace-nowrap relative rounded-2xl border-none
+              onClick={() => {
+                registerRef.current?.showModal();
+              }}
+              className=" min-[743px]:flex hidden bg-black  items-center text-base font-[680] gap-[2.8125rem] p-4 whitespace-nowrap relative rounded-2xl border-none
            text-white shadow-[0_0_#00000024,0_3px_6px_#00000024,0_11px_11px_#0000001c,0_24px_15px_#0000000d,0_43px_17px_#00000005,0_68px_19px_0_transparent]"
             >
               Sign up
@@ -260,47 +388,40 @@ const Root = () => {
           </nav>
         </div>
       </header>
-      <div className="fixed flex right-4 bottom-8 gap-1 z-50  md:hidden ">
+      <div className="fixed flex right-4 bottom-8 gap-1 z-50  md:hidden">
         <Link
           href={""}
           className="flex items-center rounded-2xl text-base font-[680]  gap-[2.8125rem] p-4 bg-black text-white shadow-[0_0_#00000024,0_3px_6px_#00000024,0_11px_11px_#0000001c,0_24px_15px_#0000000d,0_43px_17px_#00000005,0_68px_19px_0_transparent]"
         >
           Get the app
           <svg
-            className="w-4 h-4 fill-current text-white"
-            viewBox="0 0 24 24"
-            xmlns="http://www.w3.org/2000/svg"
-            transform="scale(1 -1) rotate(45)"
+            data-v-c07429e7=""
+            width="16"
+            height="16"
+            fill="none"
+            viewBox="0 0 16 16"
           >
-            <g clipPath="url(#a)">
-              <path
-                d="M16 16V8H8"
-                stroke="#000"
-                strokeWidth="2.5"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
-            </g>
-            <defs>
-              <clipPath id="a">
-                <path fill="#fff" d="M0 0h24v24H0z" />
-              </clipPath>
-            </defs>
+            <path
+              fill="currentColor"
+              fillRule="evenodd"
+              d="M5.184 4.925a.5.5 0 0 1 0-.707l.864-.864a.5.5 0 0 1 .707 0l4.523 4.523a.5.5 0 0 1 0 .707l-4.523 4.523a.5.5 0 0 1-.707 0l-.864-.865a.5.5 0 0 1 0-.707L8.488 8.23 5.184 4.925Z"
+              clipRule="evenodd"
+            ></path>
           </svg>
         </Link>
       </div>
 
       {/* First Section */}
-      <div className="overflow-hidden relative" style={{ height: firstHeight }}>
-        <section
+      <StickyControl isWindow={isWindow} height={firstHeight}>
+        <div
           style={tab == 0 ? _classActive : _class}
           ref={firstRef}
           className="md:sticky top-0 z-[1]"
         >
-          <div className="flex items-end relative p-4 h-[calc(100svh_-_16px)]">
+          <div className="flex items-end  relative p-4 h-[calc(100svh_-_16px)]">
             {/* Video  */}
             <div className="absolute left-0 right-0 top-0 bottom-0 w-full h-full">
-              <div className=" w-full h-full overflow-hidden">
+              <div className="w-full h-full overflow-hidden">
                 <video
                   autoPlay
                   loop
@@ -335,21 +456,22 @@ const Root = () => {
               </p>
             </div>
           </div>
-        </section>
-      </div>
+        </div>
+      </StickyControl>
       {/* Second Section */}
-      <div
-        className="overflow-hidden relative"
-        style={{ height: secondHeight }}
-      >
-        <section
+      <StickyControl isWindow={isWindow} height={secondHeight}>
+        <div
           style={tab == 1 ? _classActive : _class}
           ref={secondRef}
-          className={`md:sticky ${
-            tab == 1 ? "max-h-screen overflow-scroll" : ""
-          } top-0  z-[2] md:h-[130vh]`}
+          className={`${
+            tab == 1 ? "bottom-0 flex items-end" : ""
+          } md:sticky top-0  z-[2]`}
         >
-          <div className="md:flex-row  p-4  flex flex-1 4.5rem flex-col min-[800px]:gap-[6.125vw] min-[900px]:gap-[5.9vw] min-[1100px]:gap-[10.9vw] min-[1200px]:gap-[11.5vw]  md:h-screen md:pb-4 md:pt-[8.125rem]  text-[#000] bg-white">
+          <div
+            className="max-w-full md:flex-row  p-4  flex flex-1  flex-col 
+          min-[800px]:gap-[6.125vw] min-[900px]:gap-[5.9vw] min-[1100px]:gap-[10.9vw] min-[1200px]:gap-[11.5vw]
+            md:h-[130vh] md:pb-4 md:pt-[6rem]  text-[#000] bg-white"
+          >
             {/* Mobile Content */}
             <div className="pt-2 sm:hidden">
               <div className="sticky   sm:hidden w-[288px] top-20 left-4 text-black">
@@ -360,7 +482,6 @@ const Root = () => {
               </div>
               <div className="invisible h-[100px]"></div>
             </div>
-
             {/* Video */}
             <div className="flex   flex-1">
               <div className="w-[458.7px] h-[611.6px] flex flex-col justify-between max-w-full max-h-full">
@@ -379,8 +500,20 @@ const Root = () => {
               </div>
             </div>
             {/* Content */}
-            <div className="flex-col mt-[4rem] sm:flex-row flex  justify-end  flex-1">
-              <div className="flex flex-col max-w-full max-h-full justify-between">
+            <div className="flex-col  sm:flex-row flex  justify-end  flex-1">
+              <div className="flex flex-col max-w-full max-h-full gap-20 ">
+                {/* Heading */}
+                <div
+                  className="hidden text-black sm:block  
+                min-[800px]:-mt-[0.5625rem]  min-[800px]:max-w-[20.875rem]
+                 min-[900px]:-mt-[0.625rem]  
+                 min-[1100px]:-mt-[0.75rem] min-[1100px]:max-w-[25.875rem] "
+                >
+                  <h2 className="text-5xl font-[740] tracking-[.0125rem] leading-none min-[1100px]:text-[4.5rem]   ">
+                    {" "}
+                    Save now, for later
+                  </h2>
+                </div>
                 {/* Bottom */}
                 <div className="min-[800px]:max-w-[456px] min-[800px]:pr-14 flex flex-col gap-12 min-[1200px]:gap-16   min-[744px]:mb-[-.375rem] justify-end">
                   <div className="text-[#c4cbd1]">
@@ -431,18 +564,22 @@ const Root = () => {
               </div>
             </div>
           </div>
-        </section>
-      </div>
+        </div>
+      </StickyControl>
       {/* Third Section */}
-      <div className="overflow-hidden relative" style={{ height: thirdHeight }}>
-        <section
+      <StickyControl isWindow={isWindow} height={thirdHeight}>
+        <div
           style={tab == 2 ? _classActive : _class}
           ref={thirdRef}
           className={`${
-            tab == 2 ? "max-h-screen overflow-scroll" : ""
-          } md:sticky  top-0 z-[3] md:h-[130vh]`}
+            tab == 2 ? "bottom-0 flex items-end" : ""
+          } md:sticky  top-0 z-[3]`}
         >
-          <div className="flex flex-col p-4 text-white bg-black min-[800px]:gap-[6.125vw] min-[900px]:gap-[5.9vw] min-[1100px]:gap-[10.9vw] min-[1200px]:gap-[11.5vw] md:flex-row  md:h-screen md:pb-4 md:pt-[8.125rem] gap-[5.9vw] ">
+          <div
+            className="max-w-full flex flex-col p-4 text-white bg-black
+           min-[800px]:gap-[6.125vw] min-[900px]:gap-[5.9vw] min-[1100px]:gap-[10.9vw] min-[1200px]:gap-[11.5vw] 
+           md:flex-row  md:h-[130vh] md:pb-4 md:pt-[6rem] gap-[5.9vw] "
+          >
             {/* Mobile Content */}
             <div className="pt-2 sm:hidden">
               <div className="sticky   sm:hidden w-[288px] top-20 left-4 text-white">
@@ -453,7 +590,7 @@ const Root = () => {
               </div>
               <div className="invisible h-[100px]"></div>
             </div>
-            {/* Video */}
+            {/*  */}
             <div className="flex   flex-1">
               <div className="w-[458.7px] h-[611.6px] flex flex-col justify-between max-w-full max-h-full">
                 <div className="flex flex-1  justify-start max-w-full max-h-full w-full h-full">
@@ -469,7 +606,18 @@ const Root = () => {
             </div>
             {/* Content */}
             <div className="flex  justify-end  flex-1">
-              <div className="flex flex-col max-w-full max-h-full justify-between">
+              <div className="flex flex-col max-w-full max-h-full gap-20">
+                {/* Heading */}
+                <div
+                  className="hidden sm:block  text-white
+                 
+                min-[800px]:-mt-[0.5625rem]  min-[800px]:max-w-[20.875rem] min-[900px]:-mt-[0.625rem]  min-[1100px]:-mt-[0.75rem] min-[1100px]:max-w-[25.875rem] "
+                >
+                  <h2 className="text-5xl font-[740] tracking-[.0125rem] leading-none min-[1100px]:text-[4.5rem]   ">
+                    {" "}
+                    Trusted & transparent
+                  </h2>
+                </div>
                 {/* Bottom */}
                 <div className="mt-[4rem] min-[800px]:max-w-[456px] min-[800px]:pr-14 flex flex-col gap-12 min-[1200px]:gap-16   min-[744px]:mb-[-.375rem] justify-end">
                   <div className="text-[#676a70]">
@@ -519,26 +667,28 @@ const Root = () => {
               </div>
             </div>
           </div>
-        </section>
-      </div>
+        </div>
+      </StickyControl>
       {/* Fourth  Section */}
-      <div
-        className="overflow-hidden relative"
-        style={{ height: fourthHeight }}
-      >
-        <section
+
+      <StickyControl isWindow={isWindow} height={fourthHeight}>
+        <div
           style={tab == 3 ? _classActive : _class}
           ref={fourthRef}
           className={`${
-            tab == 3 ? "max-h-screen overflow-scroll" : ""
-          } md:sticky top-0  z-[4] overflow-hidden`}
+            tab == 3 && isWindow && window.innerWidth < 640
+              ? "max-h-screen overflow-scroll"
+              : ""
+          } md:relative top-0  z-[4] overflow-hidden`}
         >
           {/* <div
             id={"section-3"}
             ref={fourthRef}
             className="absolute h-full -z-10 top-0 w-full"
           ></div> */}
-          <div className="flex flex-col h-full justify-around relative min-h-screen  pt-8 px-4 pb-4 bg-white text-black">
+          <div
+            className={`flex flex-col h-full justify-around relative  min-h-screen sm:min-h-full  pt-8 px-4 pb-4 bg-white text-black`}
+          >
             {/* FAQ */}
             <div className="absolute top-[120px] left-4">
               <h2
@@ -548,14 +698,14 @@ const Root = () => {
                 FAQ
               </h2>
             </div>
-            <ul className="min-[744px]:mt-8 mt-[12rem] w-[615px] max-w-full p-0">
+            <ul className="min-[744px]:mt-[18.75rem] mt-[12rem] w-[615px] max-w-full p-0">
               {data.map((item, index) => {
                 return (
                   <Toggle
+                    key={index}
                     id={index}
                     open={open}
                     setOpen={setOpen}
-                    key={index}
                     label={item.label}
                     description={item.description}
                   />
@@ -608,19 +758,19 @@ const Root = () => {
               </Link>
             </div>
           </div>
-        </section>
-      </div>
-      <div className="overflow-hidden relative" style={{ height: thirdHeight }}>
+        </div>
+      </StickyControl>
+      <StickyControl isWindow={isWindow} z={"z-[5]"} height={fiveHeight}>
         <footer
           ref={fiveRef}
           style={tab == 4 ? _classActive : _class}
-          className="md:sticky top-0  flex text-black bg-white flex-col justify-end items-start gap-16 pt-44 px-4 pb-8  z-20"
+          className="md:relative top-0 z-[5] flex text-black bg-white flex-col justify-end items-start gap-16 pt-44 px-4 pb-16 sm:pb-8"
         >
-          {/* Footer Logo */}
+          {/* Footer Logo
           <div className="aspect-[213/18] w-[213px]">
             {" "}
             <Logo className="w-full h-full" />
-          </div>
+          </div> */}
           {/* Footer middle */}
           <div className="flex items-start self-stretch flex-wrap gap-16">
             <div className="flex items-start flex-grow flex-shrink-0 basis-0 flex-col gap-4">
@@ -692,7 +842,7 @@ const Root = () => {
             <div className="flex items-start flex-grow flex-shrink-0 basis-0 flex-col gap-4"></div>
           </div>
           {/* Footer bottom */}
-          <div className="flex flex-col items-start justify-end self-stretch gap-8">
+          <div className="flex flex-col mt-[4rem] sm:mt-0 items-start justify-end self-stretch gap-8">
             <span className="opacity-90 text-[.875rem] font-[580] tracking-[.0125rem] leading-[1.1428571429] antialiased ">
               © Trade Republic Bank 2023
             </span>{" "}
@@ -719,16 +869,41 @@ const Root = () => {
                 </span>{" "}
               </div>
               <div>
-                <span className="opacity-90 text-[.875rem] font-[580] tracking-[.0125rem] leading-[1.1428571429] antialiased ">
+                <span className="opacity-90  text-[.875rem] font-[580] tracking-[.0125rem] leading-[1.1428571429] antialiased ">
                   <Link href={""}>Cookies</Link>
                 </span>{" "}
               </div>
             </div>
           </div>
         </footer>
-      </div>
+      </StickyControl>
     </main>
   );
+};
+
+const StickyControl = ({
+  z,
+  height,
+  children,
+  isWindow,
+}: {
+  z?: string;
+  height: number;
+  children: React.ReactNode;
+  isWindow: boolean;
+}) => {
+  if (isWindow && window.innerWidth > 640) {
+    return children;
+  } else {
+    return (
+      <div
+        className={`overflow-hidden relative bg-white ${z} `}
+        style={{ height: height }}
+      >
+        {children}
+      </div>
+    );
+  }
 };
 
 export default Root;
